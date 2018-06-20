@@ -127,6 +127,8 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
 	  //printf("aaaaa%f\n",BasketballRobot.ThetaD);
+	  GetPosition();
+	  printf("a%f     b%f     c%f\n",BasketballRobot.w[0],BasketballRobot.w[1],BasketballRobot.w[2]);
 	delay_ms(1000);
 
 	  

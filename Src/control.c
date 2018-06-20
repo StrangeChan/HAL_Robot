@@ -34,13 +34,13 @@ void Control_Init(void)
 	Vision.X = 0;
 	
 	//开启外设
-	HAL_UART_Receive_IT(&huart1,(u8 *)aRxBuffer1, USART1_REC_LEN);
-	HAL_UART_Receive_IT(&huart2,(u8 *)aRxBuffer2, USART2_REC_LEN);
-	HAL_UART_Receive_IT(&huart3,(u8 *)aRxBuffer3, 1);	
+	HAL_UART_Receive_IT(&huart1,(u8 *)aRxBuffer1,USART1_REC_LEN);
+	HAL_UART_Receive_IT(&huart2,(u8 *)aRxBuffer2,USART2_REC_LEN);
+	HAL_UART_Receive_IT(&huart3,(u8 *)aRxBuffer3,USART3_REC_LEN);	
 	
 	HAL_TIM_IC_Start_IT(&htim1,TIM_CHANNEL_1);		//开始捕获 TIM1 的通道 1，红外遥控
 	HAL_TIM_Base_Start_IT(&htim1);					//使能更新中断，红外遥控
-	HAL_TIM_Base_Start_IT(&htim5);					//主定时器，获取姿态信息
+	//HAL_TIM_Base_Start_IT(&htim5);					//主定时器，获取姿态信息
 	
 	HAL_TIM_Encoder_Start(&htim2,TIM_CHANNEL_ALL);	//开启解码器通道
 	HAL_TIM_Encoder_Start(&htim4,TIM_CHANNEL_ALL);
@@ -542,7 +542,22 @@ void RobotGoTo(float X_I,float Y_I,float Theta_I)
 }
 
 
-
+u8 DownShotUp(void)
+{
+	Robot_armDown();
+	CHARGE = 0;
+	if(LimitSwitchDowm == 1)
+	{
+		CHARGE = 0;
+		delay_ms(500);
+		SHOT = 1;
+		delay_ms(500);
+		SHOT = 0;
+		
+		return 0;
+	}
+	return 1;
+}
 
 
 

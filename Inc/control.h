@@ -64,6 +64,8 @@ struct RADAR
 	uint32_t Distance;  //距离
 	
 	uint32_t Angle;	//角度
+	
+	u8 State;	//状态
 };	
 
 //接收视觉数据
@@ -72,6 +74,8 @@ struct VISION
 	uint32_t Depth;	//深度，纵轴
 	
 	uint32_t X;		//X位置，横轴
+	
+	u8 State;	//状态
 };
 
 
@@ -95,8 +99,8 @@ void GetInfraredState(void);	//获取红外开关状态
 void Robot_armDown(void);	//机械臂下降
 void Robot_armUp(void);		//机械臂上升
 
-uint8_t GetVisionData(void);		//视觉数据处理
-uint8_t GetRadarData(void);		//激光处理数据
+//uint8_t GetVisionData(void);		//视觉数据处理
+//uint8_t GetRadarData(void);		//激光处理数据
 
 
 static float AdjustAngleV(float D_Theta);		//根据偏差大小调整角速度
@@ -107,4 +111,8 @@ static float AdjustVx(float D_X);			//根据偏差大小调整X轴速度
 void RobotRotate(float theta);	//自旋运动，根据误差角度，自动调节
 
 void RobotGoTo(float X_I,float Y_I,float Theta_I);	//行至指定坐标
+
+u8 DownShotUp(void);
+
+
 #endif

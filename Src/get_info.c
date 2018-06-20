@@ -15,9 +15,9 @@ void ReadEncoder(void)
 	nEncoder3 = __HAL_TIM_GET_COUNTER(&htim8);
 	__HAL_TIM_SET_COUNTER(&htim8,0);
 	
-	BasketballRobot.w[2] += nEncoder3;
-	BasketballRobot.w[1] += nEncoder2;
-	BasketballRobot.w[0] += nEncoder1;  
+	BasketballRobot.w[2] = nEncoder3;
+	BasketballRobot.w[1] = nEncoder2;
+	BasketballRobot.w[0] = nEncoder1;  
 }
 
 void GetYaw(void)
@@ -33,7 +33,7 @@ void GetYaw(void)
 		
 		//偏航角（z 轴） Yaw=((YawH<<8)|YawL)/32768*180(°)
 		if(sum == aRxBuffer2[10])
-		{
+		{				
 			temp = aRxBuffer2[7];
 			BasketballRobot.ThetaD = ((float)((temp<<8)|aRxBuffer2[6]))/32768*180;
 //			receive2 = 0;
@@ -85,17 +85,19 @@ void GetPosition(void)
 	l2 = BasketballRobot.w[1] - nW;
 	l3 = BasketballRobot.w[2] - nW;
 	
-	nX = (l1-l2-l3)/2.0f;
+	nX = l1;
 	nY = (-l2 + l3)/1.7320508f;
 	
-	BasketballRobot.X += nX*theta_inv[0][0]+nY*theta_inv[1][0];
-	BasketballRobot.Y += nX*theta_inv[0][1]+nY*theta_inv[1][1];
+	//nX = 
+	
+	BasketballRobot.X += nX*theta_inv[0][0]+nY*theta_inv[0][1];
+	BasketballRobot.Y += nX*theta_inv[1][0]+nY*theta_inv[1][1];
 	
 
 }
 
 //视觉数据处理
-u8 GetVisionData(void)
+void GetVisionData(void)
 {	
 	u8 check_sum = 0,i;
 	u32 x,d;
@@ -149,19 +151,24 @@ u8 GetVisionData(void)
 
 	}
 	
-	if(x > 10 ||x < 630)
+	if(x<10 || x>630 || d<500)
+		Vision.State = 0;
+	else 
+	{
 		Vision.X = x;
-	if(d>500)
 		Vision.Depth = d;
+		Vision.State = 1;
+		LCD_ShowString(30+200,420,200,16,16,"View :pix");	
+		LCD_ShowNum(30+200+48+8+45,420,Vision.X,4,16);		
+		LCD_ShowString(30+200,440,200,16,16,"View :length");	
+		LCD_ShowNum(30+200+48+8+45,440,Vision.Depth,4,16);	
+	}
 	
-	LCD_ShowString(30+200,420,200,16,16,"View :pix");	
-	LCD_ShowNum(30+200+48+8+45,420,Vision.X,4,16);		
-	LCD_ShowString(30+200,440,200,16,16,"View :length");	
-	LCD_ShowNum(30+200+48+8+45,440,Vision.Depth,4,16);	
+	
 }
 
 //激光处理数据
-u8 GetRadarData(void)
+void GetRadarData(void)
 {
 	
 	if(USART3_RX_STA&0x8000)
@@ -174,19 +181,19 @@ u8 GetRadarData(void)
 		if(USART3_RX_BUF[0]!=' ')
 			Radar.Distance=(USART3_RX_BUF[0]-'0')*1000;
 		else 
-			Vision.Depth=0;
+			Radar.Distance=0;
 		USART3_RX_BUF[0] = ' ';
 		
 		if(USART3_RX_BUF[1]!=' ')
-			Vision.Depth+=(USART3_RX_BUF[1]-'0')*100;
+			Radar.Distance+=(USART3_RX_BUF[1]-'0')*100;
 		USART3_RX_BUF[1] = ' ';
 		
 		if(USART3_RX_BUF[2]!=' ')
-			Vision.Depth+=(USART3_RX_BUF[2]-'0')*10;
+			Radar.Distance+=(USART3_RX_BUF[2]-'0')*10;
 		USART3_RX_BUF[2] = ' ';
 		
 		if(USART3_RX_BUF[3]!=' ')
-			Vision.Depth +=(USART3_RX_BUF[3]-'0');
+			Radar.Distance +=(USART3_RX_BUF[3]-'0');
 		USART3_RX_BUF[3] = ' ';
 		
 		//角度信息
@@ -205,17 +212,15 @@ u8 GetRadarData(void)
 		LCD_ShowString(30+200,460,200,16,16,"Radar:rad");	
 		LCD_ShowNum(30+200+48+8+45,460,Radar.Angle,4,16);		
 		LCD_ShowString(30+200,480,200,16,16,"Radar:length");	
-		LCD_ShowNum(30+200+48+8+45,480,Vision.Depth,4,16);	
+		LCD_ShowNum(30+200+48+8+45,480,Radar.Distance,4,16);	
 		
 		USART3_RX_STA=0;
 		receive3=0;
 	}
 	
-	if(Radar.Angle<240 || Radar.Angle >300) //原来&&
-		return 0;
-	if(Vision.Depth>4000)
-		return 0;
-	
-	return 1;
+	if(Radar.Angle<240 || Radar.Angle >300||Radar.Distance>4000) //原来&&
+		Radar.State = 0;
+	else
+		Radar.State = 1;
 }
 

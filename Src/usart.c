@@ -60,7 +60,9 @@ uint8_t receive3 = 0;
 
 uint8_t aRxBuffer1[USART1_REC_LEN];//HAL库使用的串口接收缓冲
 uint8_t aRxBuffer2[USART2_REC_LEN];//HAL库使用的串口接收缓冲
-uint8_t aRxBuffer3[1];//HAL库使用的串口接收缓冲
+uint8_t aRxBuffer3[USART3_REC_LEN ];//HAL库使用的串口接收缓冲
+
+	
 
 /* USER CODE END 0 */
 

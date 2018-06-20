@@ -11,7 +11,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	}
 	if(htim->Instance==TIM5)
 	{
-		GetPosition();
+//		if(huart2.RxState == HAL_UART_STATE_BUSY_RX && aRxBuffer2[0] != 0x55)
+//		{
+//			HAL_UART_AbortReceive(&huart2);
+//			HAL_UART_Receive_IT(&huart2,(u8 *)aRxBuffer2, USART2_REC_LEN);	
+//			UartRxTimEnble &= ~0x02;
+//		}
+		//GetPosition();
 		//printf("%f\n",BasketballRobot.ThetaD);
 		
 	}
@@ -34,39 +40,27 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart->Instance==USART1)//如果是串口1
 	{
-//		uint8_t Res;
-//		static uint8_t a ;
-//		a=!a;
+		HAL_UART_Receive_IT(&huart1,(u8 *)aRxBuffer1, USART1_REC_LEN);
+		
+		GetVisionData();
 		LED0 = !LED0;
 		LED1 = !LED0;
 	}
 	if(huart->Instance==USART2)//如果是串口1
 	{
-			
-//		if(aRxBuffer2[0]==0x55&&aRxBuffer2[1]==0x53)
-//		{
-//			u8  sum,i;
-//			sum =0;
-//			for(i = 0;i <10;i++)
-//			{
-//				sum += aRxBuffer2[i];
-//			}
-//	
-//			if(sum == aRxBuffer2[10])
-//			{
-//				HAL_UART_Transmit(&huart1,(uint8_t*)aRxBuffer2,11,1000);	//发送接收到的数据
-//			}	
-//		}
+		HAL_UART_Receive_IT(&huart2,(u8 *)aRxBuffer2, USART2_REC_LEN);
+
 		GetYaw();
-		printf("%f\n",BasketballRobot.ThetaD);
+		//printf("%f\n",BasketballRobot.ThetaD);
+		
 		LED0 = !LED0;
 		LED1 = !LED0;
 	}
 	if(huart->Instance==USART3)//如果是串口1
 	{
-//		uint8_t Res;
-//		static uint8_t a ;
-//		a=!a;
+		HAL_UART_Receive_IT(&huart3,(u8 *)aRxBuffer3, USART3_REC_LEN);
+		
+		GetRadarData();
 		LED0 = !LED0;
 		LED1 = !LED0;
 	}

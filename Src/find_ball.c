@@ -55,7 +55,7 @@ void FindBall_vision(u8 ball)
 		while(receive != 1);
 		
 		//所得数据无效
-		if(!GetVisionData())
+		if(!Vision.State)
 		{	
 			if(time == 0);
 				
@@ -182,7 +182,7 @@ void FindBall_radar(void)
 	do{
 		while(receive3 != 1);
 		
-		if(!GetRadarData())
+		if(!Radar.State)
 		{	
 			
 			SetPWM(0,0,0);
@@ -322,7 +322,7 @@ void FindBall_VandR(u8 ball)
 		while(receive != 1);
 		while(receive3 != 1);
 		
-		if(!GetVisionData())
+		if(!Vision.State)
 		{	
 			if(time == 0)
 			{
@@ -393,7 +393,7 @@ void FindBall_VandR(u8 ball)
 			if(Radar.Distance<800)
 				break;
 
-			if(!GetVisionData())
+			if(!Vision.State)
 				SetPWM(0,0,0);
 					
 			if(Radar.Angle< VISION_MID-20 )
@@ -464,7 +464,7 @@ void FindBall_VandR(u8 ball)
 					GetRadarData();
 					GetVisionData();
 
-					if(!GetRadarData())
+					if(!Radar.State)
 					{	
 					GetMotorVelocity_Self(0,0,0);
 					SetPWM(BasketballRobot.Velocity[0],BasketballRobot.Velocity[1],BasketballRobot.Velocity[2]);
