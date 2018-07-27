@@ -48,7 +48,7 @@
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "control.h"
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart1;
@@ -58,9 +58,9 @@ extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN Private defines */
 #define USART_REC_LEN  			200  	//定义最大接收字节数 200  //  10
 	 
-#define USART1_REC_LEN  		9	//定义最大接收字节数 11 	 
-#define USART2_REC_LEN  		11 	//定义最大接收字节数 11
-#define USART3_REC_LEN  		11 	//定义最大接收字节数 11
+#define USART1_REC_LEN  		1	//定义最大接收字节数 11 	 
+#define USART2_REC_LEN  		1 	//定义最大接收字节数 11
+#define USART3_REC_LEN  		1 	//定义最大接收字节数 11
 	 
 /* USER CODE END Private defines */
 
@@ -74,27 +74,30 @@ void MX_USART3_UART_Init(void);
 
 extern uint8_t UartRxTimEnble;  //串口接收错误标志 0~15
 
-extern uint8_t   USART1_RX_BUF[USART_REC_LEN]; //接收缓冲,最大USART_REC_LEN个字节.末字节为换行符 
+extern vu8   USART1_RX_BUF[USART_REC_LEN]; //接收缓冲,最大USART_REC_LEN个字节.末字节为换行符 
 extern uint16_t  USART1_RX_STA;         		//接收状态标记	
-extern uint8_t  USART2_RX_BUF[USART_REC_LEN];			//接收缓冲，最大USART_REC_LEN个字节，末字节为换行符
+extern vu8  USART2_RX_BUF[USART_REC_LEN];			//接收缓冲，最大USART_REC_LEN个字节，末字节为换行符
 extern uint16_t USART2_RX_STA;				//接收状态标记
-extern uint8_t  USART3_RX_BUF[USART_REC_LEN];//接收缓冲，最大USART_REC_LEN个字节，末字节为换行符
+extern vu8  USART3_RX_BUF[USART_REC_LEN];//接收缓冲，最大USART_REC_LEN个字节，末字节为换行符
 extern uint16_t USART3_RX_STA;				//接收状态标记
 
 extern  uint8_t  receive;
 extern  uint8_t  receive2;					//USART2的接受数据状态
 extern  uint8_t  receive3;					//USART2的接受数据状态
 
-extern uint8_t aRxBuffer1[USART1_REC_LEN];
-extern uint8_t aRxBuffer2[USART2_REC_LEN];
-extern uint8_t aRxBuffer3[USART3_REC_LEN ];
+extern vu8 aRxBuffer1[USART1_REC_LEN];
+extern vu8 aRxBuffer2[USART2_REC_LEN];
+extern vu8 aRxBuffer3[USART3_REC_LEN ];
 
+
+void SendToPc(u8 cmd,u16 data1,u16 data2,u16 data3);
 
 //自定义串口中断调用函数，HAL库太麻烦
 void myUSART1_IRQHandler(void);
 
 void myUSART3_IRQHandler(void);
 
+void myUSART2_IRQHandler(void);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus

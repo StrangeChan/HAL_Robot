@@ -55,7 +55,7 @@
 /* USER CODE BEGIN Private defines */
 	 
 //Beep端口定义
-#define BEEP PFout(8)	
+#define BEEP PDout(6)	
 	 
 //LED端口定义
 #define LED0 PFout(10)	

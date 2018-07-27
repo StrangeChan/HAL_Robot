@@ -56,8 +56,6 @@
 #define shovelMotor1_GPIO_Port GPIOE
 #define shovelMotor2_Pin GPIO_PIN_6
 #define shovelMotor2_GPIO_Port GPIOE
-#define BEEP_Pin GPIO_PIN_8
-#define BEEP_GPIO_Port GPIOF
 #define LED1_Pin GPIO_PIN_9
 #define LED1_GPIO_Port GPIOF
 #define LED0_Pin GPIO_PIN_10
@@ -96,6 +94,8 @@
 #define mainMotor3_GPIO_Port GPIOC
 #define IRcontrol_Pin GPIO_PIN_8
 #define IRcontrol_GPIO_Port GPIOA
+#define BEEP_Pin GPIO_PIN_6
+#define BEEP_GPIO_Port GPIOD
 #define IIC_SCL_Pin GPIO_PIN_8
 #define IIC_SCL_GPIO_Port GPIOB
 #define IIC_SDA_Pin GPIO_PIN_9

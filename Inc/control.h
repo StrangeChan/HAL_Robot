@@ -14,13 +14,15 @@
 #include "find_ball.h"
 //#include "timer.h"
 #include <math.h>
+#include "arm_math.h"
+#include "myiic.h"
+#include "mpu9250.h"
+#include "MahonyAHRS.h"
 
 
-#define PI 		3.141592654f
-
-#define ENCODER_FD 	4.0f			//±àÂëÆ÷·ÖÆµ
+#define ENCODER_FD 	4.0f		//±àÂëÆ÷·ÖÆµ
 #define ENCODER_MAX 500.0f		//±àÂëÆ÷±àÂëÊı
-#define ENCODER_T 	0.01f   		//±àÂëÆ÷¼ÆËãµ±Ç°ËÙ¶ÈÊ±¼ä
+#define ENCODER_T 	0.01f   	//±àÂëÆ÷¼ÆËãµ±Ç°ËÙ¶ÈÊ±¼ä
 #define ENCODER_L 	0.2006f		//±àÂëÆ÷ÂÖµ½»úÆ÷ÈËÖĞĞÄµÄ¾àÀë
 #define ENCODER_R 	0.0275f		//±àÂëÆ÷ÂÖ×Ó°ë¾¶
 #define RAD	 0.1570796327f		//±àÂëÆ÷Ò»¸öÂö³å¶ÔÓ¦µÄ½Ç¶È pi/500/4/0.01
@@ -29,12 +31,25 @@
 #define MOTOR_R 0.0508f		//ÂÖ×ÓµÄ°ë¾¶
 
 #define MOTOR_STATIC_1 4000		//TIM9 CH1 PE5
-#define MOTOR_STATIC_2 4000  		//TIM9 CH2 PE6
+#define MOTOR_STATIC_2 4000  	//TIM9 CH2 PE6
 
 #define RADAR_MID 268	//À×´ï¶¨Î»ÖĞĞÄ
 #define VISION_MID 320	//ÊÓ¾õ¶¨Î»ÖĞĞÄ
 #define DIS_RADAR 2500	//Àº¿ğÀ×´ï¶¨Î»¾àÀë
 #define DIS_VISION 280	//Àº¿ğÊÓ¾õ¶¨Î»¾àÀë
+
+#define Origin_X 0		//ÊÓ¾õÆÁÄ»Ô­µãx×ø±ê£¬ÏÖ¼ÙÉè
+#define Origin_Y 0		//ÊÓ¾õÆÁÄ»Ô­µãy×ø±ê£¬´ıĞŞ¸Ä
+
+#define Correction_X -0.3	//Çò³¡×ø±êĞŞÕıÖµx
+#define Correction_Y 0.3	//Çò³¡×ø±êĞŞÕıÖµy
+
+//PD²ÎÊı
+typedef struct
+{
+	float Kp;
+	float Kd;
+}PD;
 
 
 struct ROBOT
@@ -43,12 +58,18 @@ struct ROBOT
 	float Y;		//»úÆ÷ÈËÔÚ×ø±êÏµÖĞy×ø±ê
 	//float x;		//»úÆ÷ÈËÔÚ×ø±êÏµÖĞx×ø±ê
 	//float y;		//»úÆ÷ÈËÔÚ×ø±êÏµÖĞy×ø±ê
+	float PX;		//µãµÄx×ø±ê
+	float PY;		//µãµÄy×ø±ê
 	float ThetaR;	//»úÆ÷ÈËÕı·½ÏòºÍyÖá¼Ğ½Ç »¡¶È
 	float ThetaD;	//»úÆ÷ÈËÕı·½ÏòºÍyÖá¼Ğ½Ç ½Ç¶È
 
 	float Vx;		//»úÆ÷ÈËÔÚ×ø±êÏµx·½ÏòËÙ¶È
 	float Vy;		//»úÆ÷ÈËÔÚ×ø±êÏµy·½ÏòËÙ¶È	
 	float W;		//»úÆ÷ÈË½ÇËÙ¶È£¬Ë³Ê±ÕëÕı·½Ïò
+	
+	PD xPD;			//»úÆ÷ÈËÔÚ×ø±êÏµx·½Ïò PD
+	PD yPD;
+	PD wPD;
 	
 	float w[3];		//±àÂëÆ÷µÄÊµ¼Ê¼ÆÊı
 	float v[3];		//±àÂëÆ÷ËùµÃËÙ¶È
@@ -61,6 +82,10 @@ struct ROBOT
 //½ÓÊÕÀ×´ïÊı¾İ£¬¼«×ø±ê
 struct RADAR
 {
+	uint16_t RX_STA;
+	
+	uint8_t  RX_BUF[20];
+	
 	uint32_t Distance;  //¾àÀë
 	
 	uint32_t Angle;	//½Ç¶È
@@ -71,6 +96,10 @@ struct RADAR
 //½ÓÊÕÊÓ¾õÊı¾İ
 struct VISION
 {
+	uint16_t RX_STA;
+	
+	uint8_t  RX_BUF[20];
+	
 	uint32_t Depth;	//Éî¶È£¬×İÖá
 	
 	uint32_t X;		//XÎ»ÖÃ£¬ºáÖá
@@ -78,6 +107,14 @@ struct VISION
 	u8 State;	//×´Ì¬
 };
 
+
+//²ùÇòµç»úÔËĞĞ×´Ì¬
+typedef enum
+{
+	STOP = 0,
+	UP,
+	DOWM
+}shovemotor;	
 
 extern struct ROBOT BasketballRobot;
 
@@ -88,7 +125,7 @@ extern struct VISION Vision;
 void Control_Init(void);		//»úÆ÷ÈË³õÊ¼»¯
 
 
-static void Velocity2PWM(float *V);		//µç»úËÙ¶È×ª»»³ÉPWMÊıÖµ£¬Ô­Àí¿´µç»úÇı¶¯°åÊÖ²á
+static void Velocity2PWM(float *V);			//µç»úËÙ¶È×ª»»³ÉPWMÊıÖµ£¬Ô­Àí¿´µç»úÇı¶¯°åÊÖ²á
 void SetPWM(float V1,float V2,float V3); 	//ÉèÖÃÈı¸öÂÖ×ÓPWM
 
 void GetMotorVelocity(float vx,float vy,float w);		//¸ø¶¨Çò³¡×ø±êËÙ¶ÈÇóµÃÂÖ×ÓµÄËÙ¶È
@@ -96,23 +133,30 @@ void GetMotorVelocity_Self(float vx,float vy,float w);	//¸ø×ÔÉí×ø±êÏµËÙ¶ÈÇóµÃÂÖ×
 
 
 void GetInfraredState(void);	//»ñÈ¡ºìÍâ¿ª¹Ø×´Ì¬
-void Robot_armDown(void);	//»úĞµ±ÛÏÂ½µ
-void Robot_armUp(void);		//»úĞµ±ÛÉÏÉı
+void shoveMotor(shovemotor t);	//²ùÇòµç»ú×´Ì¬
+void Robot_armDown(void);		//»úĞµ±ÛÏÂ½µ
+void Robot_armUp(void);			//»úĞµ±ÛÉÏÉı
+
+u8 DownShotUp(void);
+
 
 //uint8_t GetVisionData(void);		//ÊÓ¾õÊı¾İ´¦Àí
 //uint8_t GetRadarData(void);		//¼¤¹â´¦ÀíÊı¾İ
 
 
-static float AdjustAngleV(float D_Theta);		//¸ù¾İÆ«²î´óĞ¡µ÷Õû½ÇËÙ¶È
-static float AdjustVy(float D_Y);			//¸ù¾İÆ«²î´óĞ¡µ÷ÕûYÖáËÙ¶È
-static float AdjustVx(float D_X);			//¸ù¾İÆ«²î´óĞ¡µ÷ÕûXÖáËÙ¶È
+static float adjustAngleV(float D_Theta);	//¸ù¾İÆ«²î´óĞ¡µ÷Õû½ÇËÙ¶È
+static float adjustVy(float D_Y);			//¸ù¾İÆ«²î´óĞ¡µ÷ÕûYÖáËÙ¶È
+static float adjustVx(float D_X);			//¸ù¾İÆ«²î´óĞ¡µ÷ÕûXÖáËÙ¶È
+
+static float adjustAngleV_PD(float D_Theta);	//¸ù¾İÆ«²î´óĞ¡µ÷Õû½ÇËÙ¶È
+static float adjustVy_PD(float D_Y);			//¸ù¾İÆ«²î´óĞ¡µ÷ÕûYÖáËÙ¶È
+static float adjustVx_PD(float D_X);			//¸ù¾İÆ«²î´óĞ¡µ÷ÕûXÖáËÙ¶È
 
 
 void RobotRotate(float theta);	//×ÔĞıÔË¶¯£¬¸ù¾İÎó²î½Ç¶È£¬×Ô¶¯µ÷½Ú
 
 void RobotGoTo(float X_I,float Y_I,float Theta_I);	//ĞĞÖÁÖ¸¶¨×ø±ê
-
-u8 DownShotUp(void);
+void RobotGoAvoidance(void);	//±ÜÕÏÖ±ĞĞ
 
 
 #endif

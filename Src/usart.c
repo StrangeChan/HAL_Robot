@@ -48,19 +48,22 @@
 //bit15，	接收完成标志
 //bit14，	接收到0x0d
 //bit13~0，	接收到的有效字节数目
-u8 USART1_RX_BUF[USART_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
+vu8 USART1_RX_BUF[USART_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
 u16 USART1_RX_STA=0;       			//接收状态标记	
 
-u8 USART3_RX_BUF[USART_REC_LEN];	//接收缓冲,最大USART_REC_LEN个字节.
+vu8 USART2_RX_BUF[USART_REC_LEN];	//接收缓冲,最大USART_REC_LEN个字节.
+u16 USART2_RX_STA = 0;			//接收状态标记
+
+vu8 USART3_RX_BUF[USART_REC_LEN];	//接收缓冲,最大USART_REC_LEN个字节.
 u16 USART3_RX_STA = 0;			//接收状态标记
 
 uint8_t receive = 0;
 uint8_t receive2 = 0;		//接收完成标志
 uint8_t receive3 = 0;
 
-uint8_t aRxBuffer1[USART1_REC_LEN];//HAL库使用的串口接收缓冲
-uint8_t aRxBuffer2[USART2_REC_LEN];//HAL库使用的串口接收缓冲
-uint8_t aRxBuffer3[USART3_REC_LEN ];//HAL库使用的串口接收缓冲
+vu8 aRxBuffer1[USART1_REC_LEN];//HAL库使用的串口接收缓冲
+vu8 aRxBuffer2[USART2_REC_LEN];//HAL库使用的串口接收缓冲
+vu8 aRxBuffer3[USART3_REC_LEN ];//HAL库使用的串口接收缓冲
 
 	
 
@@ -76,7 +79,7 @@ void MX_USART1_UART_Init(void)
 {
 
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 9600;
+  huart1.Init.BaudRate = 115200;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
@@ -95,7 +98,7 @@ void MX_USART2_UART_Init(void)
 {
 
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 9600;
+  huart2.Init.BaudRate = 115200;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
@@ -114,7 +117,7 @@ void MX_USART3_UART_Init(void)
 {
 
   huart3.Instance = USART3;
-  huart3.Init.BaudRate = 9600;
+  huart3.Init.BaudRate = 115200;
   huart3.Init.WordLength = UART_WORDLENGTH_8B;
   huart3.Init.StopBits = UART_STOPBITS_1;
   huart3.Init.Parity = UART_PARITY_NONE;
@@ -152,7 +155,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /* USART1 interrupt Init */
-    HAL_NVIC_SetPriority(USART1_IRQn, 1, 0);
+    HAL_NVIC_SetPriority(USART1_IRQn, 2, 1);
     HAL_NVIC_EnableIRQ(USART1_IRQn);
   /* USER CODE BEGIN USART1_MspInit 1 */
 
@@ -178,10 +181,10 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /* USART2 interrupt Init */
-    HAL_NVIC_SetPriority(USART2_IRQn, 1, 1);
+    HAL_NVIC_SetPriority(USART2_IRQn, 2, 0);
     HAL_NVIC_EnableIRQ(USART2_IRQn);
   /* USER CODE BEGIN USART2_MspInit 1 */
-
+	//HAL_NVIC_DisableIRQ(USART2_IRQn);
   /* USER CODE END USART2_MspInit 1 */
   }
   else if(uartHandle->Instance==USART3)
@@ -204,7 +207,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /* USART3 interrupt Init */
-    HAL_NVIC_SetPriority(USART3_IRQn, 1, 2);
+    HAL_NVIC_SetPriority(USART3_IRQn, 2, 2);
     HAL_NVIC_EnableIRQ(USART3_IRQn);
   /* USER CODE BEGIN USART3_MspInit 1 */
 
@@ -287,6 +290,42 @@ int fputc(int ch, FILE *f)
 	return ch;
 }
 
+//串口发送1个字符 
+//c:要发送的字符
+void usart_send_char(u8 c)
+{
+    while(__HAL_UART_GET_FLAG(&huart1,UART_FLAG_TC)==RESET){}; 
+    USART1->DR=c;  
+} 
+void SendToPc(u8 cmd,u16 data1,u16 data2,u16 data3)
+{
+	u8 sum =0;
+	
+	usart_send_char('@');
+	//sum += '@';
+	
+	usart_send_char('^');
+	//sum +=  '@';
+	
+	usart_send_char(cmd);
+	///sum += cmd;
+	
+	usart_send_char((data1>>8)&0xff);
+	usart_send_char((data1)&0xff);
+	
+	usart_send_char((data2>>8)&0xff);
+	usart_send_char(data2&0xff);
+	
+	usart_send_char((data3>>8)&0xff);
+	usart_send_char(data3&0xff);
+	
+	sum = '@'+  '^'+cmd+((data1>>8)&0xff)+((data1)&0xff)+((data2>>8)&0xff)+(data2&0xff)+((data3>>8)&0xff)+(data3&0xff);
+	
+	usart_send_char(sum);
+		
+}
+
+
 
 //串口1中断服务程序，视觉数据
 void myUSART1_IRQHandler(void)
@@ -336,6 +375,80 @@ void myUSART1_IRQHandler(void)
 	} 
 }
 
+uint8_t End=0;
+u8 receive_start2 = 0;
+uint8_t CheckSum_2 = 0;
+void myUSART2_IRQHandler(void)
+{
+	uint8_t Res;
+
+	
+	if((__HAL_UART_GET_FLAG(&huart2,UART_FLAG_RXNE) != RESET))  //接收中断
+	{
+		HAL_UART_Receive(&huart2,&Res,1,1000);//(USART1->DR);	//读取接收到的数据
+		
+		if((USART1_RX_STA&0x8000)==0)//接收未完成
+		{
+			if(Res == 0x55)
+			{
+				if(receive_start2 == 0)
+				{
+					USART2_RX_STA=0;
+					CheckSum_2 = 0;
+					receive_start2 = 1;
+				}
+			}	
+			else if(Res == 0x53)
+			{
+				if(receive_start2 == 1)
+				{
+					receive_start2 = 2;
+				}
+			}
+			if(receive_start2 != 0)
+			{
+				if(USART2_RX_STA < 10)
+				{
+					USART2_RX_BUF[USART2_RX_STA&0X3FFF]=Res;
+					CheckSum_2 += Res;
+					USART2_RX_STA++;
+				}
+				else
+				{
+					if(Res ==CheckSum_2)
+					{
+						
+							//LED0 = !LED0;
+							LED1 = !LED0;
+						receive2 = 1;
+						USART2_RX_STA|=0x8000;
+			
+						BasketballRobot.ThetaD = ((float)((USART2_RX_BUF[7]<<8)|aRxBuffer2[6]))/32768*180;
+;
+						
+						BasketballRobot.ThetaR = BasketballRobot.ThetaD * PI / 180 + BasketballRobot.theta_offset;
+						
+						while(BasketballRobot.ThetaR < 0)
+							BasketballRobot.ThetaR  = BasketballRobot.ThetaR + PI + PI;
+						
+						while (BasketballRobot.ThetaR > 2 * PI)
+							BasketballRobot.ThetaR = BasketballRobot.ThetaR - PI - PI;
+						
+						while(BasketballRobot.ThetaD < 0)
+							BasketballRobot.ThetaD  = BasketballRobot.ThetaD + 360;
+						
+						while (BasketballRobot.ThetaD >360)
+							BasketballRobot.ThetaD = BasketballRobot.ThetaD - 360;
+						printf("%.2f\n",BasketballRobot.ThetaD);
+						receive2 = 0;
+						USART2_RX_STA =000;
+					}
+					receive_start2 = 0;
+				}
+			}
+		} 
+	} 
+}
 
 void myUSART3_IRQHandler(void)
 {

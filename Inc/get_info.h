@@ -10,11 +10,17 @@
 
 
 void ReadEncoder(void);
-void GetYaw(void);
+
+void receiveIMUData(void);
+u8 GetYaw(void);
+
 void GetPosition(void);		//坐标转换
 
-void GetVisionData(void);		//视觉数据处理
-void GetRadarData(void);		//激光处理数据
+void receiveVisionData(void);
+u8 GetVisionData(void);		//视觉数据处理
+
+void receiveRadarData(void);
+u8 GetRadarData(void);		//激光处理数据
 
 #endif
 

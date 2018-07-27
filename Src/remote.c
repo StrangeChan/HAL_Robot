@@ -107,5 +107,10 @@ u8 Remote_Scan(void)
 			RmtCnt=0;		//清除按键次数计数器
 		}
 	}  
+	if(sta)
+	{
+		delay_ms(500);
+		RmtSta = 0;
+	}
 	return sta;
 }

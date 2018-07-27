@@ -233,17 +233,33 @@ void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
 	
-	//接收到第一个数据但是不是0X55，表示数据接收错误重新接收
-	if(huart1.RxXferCount < USART1_REC_LEN && aRxBuffer1[0]!=0x55)
-	{
-		HAL_UART_AbortReceive(&huart1);
-		HAL_UART_Receive_IT(&huart1,(u8 *)aRxBuffer1, USART1_REC_LEN);	
-	}
-	
+//	//接收到第一个数据但是不是0X55，表示数据接收错误重新接收
+//	if(huart1.RxXferCount < USART1_REC_LEN && aRxBuffer1[0]!=0x55)
+//	{
+//		HAL_UART_AbortReceive(&huart1);
+//		HAL_UART_Receive_IT(&huart1,(u8 *)aRxBuffer1, USART1_REC_LEN);	
+//	}
+	u32 timeout=0;
   /* USER CODE END USART1_IRQn 0 */
   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
-	//HAL_UART_Receive_IT(&huart1,(u8 *)aRxBuffer1, USART1_REC_LEN);
+	
+	timeout=0;
+    while (HAL_UART_GetState(&huart1) != HAL_UART_STATE_READY)//等待就绪
+	{
+	 timeout++;////超时处理
+     if(timeout>HAL_MAX_DELAY) break;		
+	
+	}
+     
+	timeout=0;
+	while(HAL_UART_Receive_IT(&huart1,(u8 *)aRxBuffer1,1) != HAL_OK)//一次处理完成之后，重新开启中断并设置RxXferCount为1
+	{
+	 timeout++; //超时处理
+	 if(timeout>HAL_MAX_DELAY) break;	
+	}
+	
+	
   /* USER CODE END USART1_IRQn 1 */
 }
 
@@ -253,17 +269,24 @@ void USART1_IRQHandler(void)
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
-	
-	//接收到第一个数据但是不是0X55，表示数据接收错误重新接收
-	if(huart2.RxXferCount < USART2_REC_LEN && aRxBuffer2[0]!=0x55)
-	{
-		HAL_UART_AbortReceive(&huart2);
-		HAL_UART_Receive_IT(&huart2,(u8 *)aRxBuffer2, USART2_REC_LEN);	
-	}
-
+	u32 timeout=0;
   /* USER CODE END USART2_IRQn 0 */
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
+	timeout=0;
+    while (HAL_UART_GetState(&huart2) != HAL_UART_STATE_READY)//等待就绪
+	{
+	 timeout++;////超时处理
+     if(timeout>HAL_MAX_DELAY) break;		
+	
+	}
+     
+	timeout=0;
+	while(HAL_UART_Receive_IT(&huart2,(u8 *)aRxBuffer2,1) != HAL_OK)//一次处理完成之后，重新开启中断并设置RxXferCount为1
+	{
+	 timeout++; //超时处理
+	 if(timeout>HAL_MAX_DELAY) break;	
+	}
 	
   /* USER CODE END USART2_IRQn 1 */
 }
@@ -274,18 +297,24 @@ void USART2_IRQHandler(void)
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
-	
-	//接收到第一个数据但是不是0X55，表示数据接收错误重新接收
-	if(huart3.RxXferCount < USART3_REC_LEN && aRxBuffer3[0]!=0x55)
-	{
-		HAL_UART_AbortReceive(&huart3);
-		HAL_UART_Receive_IT(&huart3,(u8 *)aRxBuffer3, USART3_REC_LEN);	
-	}
-	
+	u32 timeout=0;
   /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
   /* USER CODE BEGIN USART3_IRQn 1 */
-	//HAL_UART_Receive_IT(&huart3,(u8 *)aRxBuffer3, 1);	
+	timeout=0;
+    while (HAL_UART_GetState(&huart3) != HAL_UART_STATE_READY)//等待就绪
+	{
+	 timeout++;////超时处理
+     if(timeout>HAL_MAX_DELAY) break;		
+	
+	}
+     
+	timeout=0;
+	while(HAL_UART_Receive_IT(&huart3,(u8 *)aRxBuffer3,1) != HAL_OK)//一次处理完成之后，重新开启中断并设置RxXferCount为1
+	{
+	 timeout++; //超时处理
+	 if(timeout>HAL_MAX_DELAY) break;	
+	}
   /* USER CODE END USART3_IRQn 1 */
 }
 

@@ -20,6 +20,8 @@
 //All rights reserved	 
 //////////////////////////////////////////////////////////////////////////////////	 
 
+#if 1
+
 SRAM_HandleTypeDef TFTSRAM_Handler;    //SRAM句柄(用于控制LCD)
 
 //LCD的画笔颜色和背景色	   
@@ -454,7 +456,7 @@ void LCD_Init(void)
 		if(lcddev.id==0x8000)lcddev.id=0x5510;//NT35510读回的ID是8000H,为方便区分,我们强制设置为5510
 			
 	}  
-	printf(" LCD ID:%x\r\n",lcddev.id); //打印LCD ID   
+	//printf(" LCD ID:%x\r\n",lcddev.id); //打印LCD ID   
 	if(lcddev.id==0x5510)///////////////////////////////////////////
 	{
 		LCD_WriteReg(0xF000,0x55);
@@ -1109,6 +1111,8 @@ void LCD_ShowString(u16 x,u16 y,u16 width,u16 height,u8 size,u8 *p)
         p++;
     }  
 }
+#endif
+
 
 
 
@@ -1421,7 +1425,7 @@ void LCD_Show_position(void)
 	LCD_ShowChar(130+25,360,'.',16,0);
 	LCD_ShowxNum(130+36,360,decimal,3,16,0);
 	
-	tem = BasketballRobot.ThetaR;
+	tem = BasketballRobot.ThetaD;
 	if(tem<0)
 	{
 		tem = -tem;
