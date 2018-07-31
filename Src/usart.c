@@ -41,6 +41,7 @@
 #include "usart.h"
 
 #include "gpio.h"
+#include "dma.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -48,13 +49,13 @@
 //bit15，	接收完成标志
 //bit14，	接收到0x0d
 //bit13~0，	接收到的有效字节数目
-vu8 USART1_RX_BUF[USART_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
+u8 USART1_RX_BUF[USART_REC_LEN];     //接收缓冲,最大USART_REC_LEN个字节.
 u16 USART1_RX_STA=0;       			//接收状态标记	
 
-vu8 USART2_RX_BUF[USART_REC_LEN];	//接收缓冲,最大USART_REC_LEN个字节.
+u8 USART2_RX_BUF[USART_REC_LEN];	//接收缓冲,最大USART_REC_LEN个字节.
 u16 USART2_RX_STA = 0;			//接收状态标记
 
-vu8 USART3_RX_BUF[USART_REC_LEN];	//接收缓冲,最大USART_REC_LEN个字节.
+u8 USART3_RX_BUF[USART_REC_LEN];	//接收缓冲,最大USART_REC_LEN个字节.
 u16 USART3_RX_STA = 0;			//接收状态标记
 
 uint8_t receive = 0;
@@ -63,7 +64,7 @@ uint8_t receive3 = 0;
 
 vu8 aRxBuffer1[USART1_REC_LEN];//HAL库使用的串口接收缓冲
 vu8 aRxBuffer2[USART2_REC_LEN];//HAL库使用的串口接收缓冲
-vu8 aRxBuffer3[USART3_REC_LEN ];//HAL库使用的串口接收缓冲
+vu8 aRxBuffer3[USART3_REC_LEN];//HAL库使用的串口接收缓冲
 
 	
 
@@ -72,6 +73,7 @@ vu8 aRxBuffer3[USART3_REC_LEN ];//HAL库使用的串口接收缓冲
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
+DMA_HandleTypeDef hdma_usart2_rx;
 
 /* USART1 init function */
 
@@ -180,6 +182,25 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+    /* USART2 DMA Init */
+    /* USART2_RX Init */
+    hdma_usart2_rx.Instance = DMA1_Stream5;
+    hdma_usart2_rx.Init.Channel = DMA_CHANNEL_4;
+    hdma_usart2_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_usart2_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_usart2_rx.Init.MemInc = DMA_MINC_ENABLE;
+    hdma_usart2_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    hdma_usart2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_usart2_rx.Init.Mode = DMA_NORMAL;
+    hdma_usart2_rx.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_usart2_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
+    if (HAL_DMA_Init(&hdma_usart2_rx) != HAL_OK)
+    {
+      _Error_Handler(__FILE__, __LINE__);
+    }
+
+    __HAL_LINKDMA(uartHandle,hdmarx,hdma_usart2_rx);
+
     /* USART2 interrupt Init */
     HAL_NVIC_SetPriority(USART2_IRQn, 2, 0);
     HAL_NVIC_EnableIRQ(USART2_IRQn);
@@ -251,6 +272,9 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
     PA3     ------> USART2_RX 
     */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2|GPIO_PIN_3);
+
+    /* USART2 DMA DeInit */
+    HAL_DMA_DeInit(uartHandle->hdmarx);
 
     /* USART2 interrupt Deinit */
     HAL_NVIC_DisableIRQ(USART2_IRQn);

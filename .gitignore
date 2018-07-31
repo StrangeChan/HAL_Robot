@@ -1,55 +1,40 @@
-# Prerequisites
+
+*.crf
 *.d
-
-# Object files
 *.o
-*.ko
-*.obj
-*.elf
-
-# Linker output
-*.ilk
+*.axf
 *.map
-*.exp
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
-
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
-
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
-
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
-
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
-*.crf
-*.crf
-*.crf
+*.htm
+*.sct
+*.dep
+*.lst
+*.lnp
+*.15201
+MDK-ARM/HAL_Robot.uvguix.PC
+MDK-ARM/HAL_Robot_uvprojx.bak
+MDK-ARM/HAL_Robot_uvoptx.bak
+MDK-ARM/RTE/Device/STM32F407ZG/RTE_Device.h
+MDK-ARM/RTE/Device/STM32F407ZG/system_stm32f4xx.c.0002
+MDK-ARM/RTE/Device/STM32F407ZG/system_stm32f4xx.c.0001
+MDK-ARM/RTE/Device/STM32F407ZG/system_stm32f4xx.c.0000
+MDK-ARM/RTE/Device/STM32F407ZG/startup_stm32f40_41xxx.s.0003
+MDK-ARM/RTE/Device/STM32F407ZG/startup_stm32f40_41xxx.s.0001
+MDK-ARM/RTE/Device/STM32F407ZG/startup_stm32f40_41xxx.s
+MDK-ARM/RTE/Device/STM32F407ZG/RTE_Device.h.0001
+MDK-ARM/RTE/Device/STM32F407ZG/RTE_Device.h.0003
+MDK-ARM/RTE/Device/STM32F407ZG/startup_stm32f40_41xxx.s.0000
+MDK-ARM/RTE/Device/STM32F407ZG/RTE_Device.h.0000
+MDK-ARM/RTE/Device/STM32F407ZG/system_stm32f4xx.c
+MDK-ARM/RTE/Device/STM32F407ZG/startup_stm32f40_41xxx.s.0002
+MDK-ARM/RTE/Device/STM32F407ZG/RTE_Device.h.0002
+MDK-ARM/RTE/Device/STM32F407ZG/system_stm32f4xx.c.0003
+MDK-ARM/HAL_Robot.uvguix.HI
+MDK-ARM/HAL_Robot.uvguix_HI.bak
+MDK-ARM/HAL_Robot.uvoptx
+MDK-ARM/HAL_Robot.uvprojx
+MDK-ARM/HAL_Robot.uvoptx
+MDK-ARM/HAL_Robot.uvprojx
+MDK-ARM/HAL_Robot.uvprojx
+*.uvprojx
+*.uvprojx
+*.uvoptx

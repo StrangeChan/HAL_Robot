@@ -22,13 +22,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		//GetPosition();
 		//printf("  %f    %f \r\n",BasketballRobot.X,BasketballRobot.Y);
 //		
+		GetYaw();
+		ReadEncoder();
 		if(count++==1)
 			LCD_Show_position();
 		
-		if(count == 2)
+		if(count %50== 2)
 			LCD_Show_lcj();
 		
-		
+		if(count == 2)
+			printf("tim\r\n");
 		
 //		printf("1： %d\r\n",htim5.Instance->CNT);
 //		MPU9250_Read();
@@ -60,9 +63,10 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)//捕获中断发生时执行
 	}
 	
 }
-
+//uint8_t sum = 0, i = 0;
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
+	
 	if(huart->Instance==USART1)//如果是串口1
 	{
 		
@@ -72,19 +76,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		LED1 = !LED0;
 	}
 	if(huart->Instance==USART2)//如果是串口2
-	{
-		//receiveIMUData();
-		//GetYaw();
-		GetPosition();
-		//receiveRadarData();
-//		if(count%4==0)
-//			LCD_Show_position();
-//		
-//		if(count%4 == 2)
-//			LCD_Show_lcj();
-//		count++;
-		//SendToPc(1,BasketballRobot.X,BasketballRobot.Y,BasketballRobot.ThetaD);
-		//LCD_Show_position();
+	{	
+//		receiveIMUData();
+//		GetYaw();	
 		
 	}
 	if(huart->Instance==USART3)//如果是串口3
@@ -99,19 +93,15 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	}
 }
 
-//void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
-//{
-//	if(huart->Instance==USART2)//如果是串口1
-//	{
-//		//HAL_UART_AbortReceive(&huart2);
-//		HAL_UART_Receive_IT(&huart2,(u8 *)aRxBuffer2, USART2_REC_LEN);
-//		
-//		
-//		//printf("ErrorC ： %x  \n",huart2.ErrorCode);
-//		//LCD_Show_position();
-////		LED0 = !LED0;
-////		LED1 = !LED0;
-//	}
-//	
-//}
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+	
+	
+	HAL_UART_MspDeInit(huart);
+	HAL_UART_MspInit(huart);
+	
+	//__HAL_UART_ENABLE_IT(&huart2, UART_IT_IDLE);
+	/*启动串口DMA接收*/
+	HAL_UART_Receive_DMA(&huart2,(u8 *)aRxBuffer2,USART2_REC_LEN);
+}
 

@@ -39,6 +39,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
+#include "dma.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -105,6 +106,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   MX_TIM9_Init();
@@ -131,6 +133,8 @@ int main(void)
 
   while (1)
   {
+	  
+	  
 	    key = Remote_Scan();
 		flag = 0;
 		key = 0;
@@ -139,6 +143,9 @@ int main(void)
 		//—°‘Ò≥Ã–Ú
 		while(1)
 		{
+//			printf("%x  \r\n",huart2.RxState);
+//			printf("errr%x  \n",huart2.ErrorCode);
+//			delay_ms(100);
 			LCD_ShowString(30+200,400,200,16,16,"chengxu:");
 			key = Remote_Scan();
 			//key = KEY_Scan(0);
@@ -260,6 +267,7 @@ int main(void)
 				{
 					case 0:
 						RobotRotate(180);
+						//printf("err\r\n");
 						//À≥ ±’Î180°„
 						break;
 					case 1:

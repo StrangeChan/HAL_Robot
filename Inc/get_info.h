@@ -7,7 +7,7 @@
 #include "control.h"
 #include "sys.h"
 
-
+//extern uint8_t sum,i;
 
 void ReadEncoder(void);
 

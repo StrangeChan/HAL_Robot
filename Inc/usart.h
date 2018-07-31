@@ -59,7 +59,7 @@ extern UART_HandleTypeDef huart3;
 #define USART_REC_LEN  			200  	//定义最大接收字节数 200  //  10
 	 
 #define USART1_REC_LEN  		1	//定义最大接收字节数 11 	 
-#define USART2_REC_LEN  		1 	//定义最大接收字节数 11
+#define USART2_REC_LEN  		30 	//定义最大接收字节数 11
 #define USART3_REC_LEN  		1 	//定义最大接收字节数 11
 	 
 /* USER CODE END Private defines */
@@ -74,11 +74,11 @@ void MX_USART3_UART_Init(void);
 
 extern uint8_t UartRxTimEnble;  //串口接收错误标志 0~15
 
-extern vu8   USART1_RX_BUF[USART_REC_LEN]; //接收缓冲,最大USART_REC_LEN个字节.末字节为换行符 
+extern u8   USART1_RX_BUF[USART_REC_LEN]; //接收缓冲,最大USART_REC_LEN个字节.末字节为换行符 
 extern uint16_t  USART1_RX_STA;         		//接收状态标记	
-extern vu8  USART2_RX_BUF[USART_REC_LEN];			//接收缓冲，最大USART_REC_LEN个字节，末字节为换行符
+extern u8  USART2_RX_BUF[USART_REC_LEN];			//接收缓冲，最大USART_REC_LEN个字节，末字节为换行符
 extern uint16_t USART2_RX_STA;				//接收状态标记
-extern vu8  USART3_RX_BUF[USART_REC_LEN];//接收缓冲，最大USART_REC_LEN个字节，末字节为换行符
+extern u8  USART3_RX_BUF[USART_REC_LEN];//接收缓冲，最大USART_REC_LEN个字节，末字节为换行符
 extern uint16_t USART3_RX_STA;				//接收状态标记
 
 extern  uint8_t  receive;
