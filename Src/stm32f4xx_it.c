@@ -44,7 +44,6 @@
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim5;
-extern DMA_HandleTypeDef hdma_usart2_rx;
 extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
@@ -202,20 +201,6 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
-* @brief This function handles DMA1 stream5 global interrupt.
-*/
-void DMA1_Stream5_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA1_Stream5_IRQn 0 */
-
-  /* USER CODE END DMA1_Stream5_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_usart2_rx);
-  /* USER CODE BEGIN DMA1_Stream5_IRQn 1 */
-
-  /* USER CODE END DMA1_Stream5_IRQn 1 */
-}
-
-/**
 * @brief This function handles TIM1 update interrupt and TIM10 global interrupt.
 */
 void TIM1_UP_TIM10_IRQHandler(void)
@@ -283,10 +268,6 @@ void USART1_IRQHandler(void)
 /**
 * @brief This function handles USART2 global interrupt.
 */
-u8 sum;
-uint32_t tmp_flag = 0;
-uint32_t temp;
-u8 i;
 void USART2_IRQHandler(void)
 {
   /* USER CODE BEGIN USART2_IRQn 0 */
@@ -295,63 +276,63 @@ void USART2_IRQHandler(void)
   HAL_UART_IRQHandler(&huart2);
   /* USER CODE BEGIN USART2_IRQn 1 */
 	
-	tmp_flag =  __HAL_UART_GET_FLAG(&huart2,UART_FLAG_IDLE);
-	 if((tmp_flag != RESET)){
-            
-        __HAL_UART_CLEAR_IDLEFLAG(&huart2);
-        
-        /* 读取串口状态寄存器（芯片型号不同，寄存器名称可能需要修改） */
-        temp = huart2.Instance->SR;
-        /* 读取串口数据寄存器（芯片型号不同，寄存器名称可能需要修改） */
-        temp = huart2.Instance->DR;
-        HAL_UART_DMAStop(&huart2);
-        /* 读取DMA剩余传输数量（芯片型号不同，寄存器名称可能需要修改） */
-		temp  = USART2_REC_LEN-hdma_usart2_rx.Instance->NDTR;
-		if(temp >= 11)
-		{
-			i = 0;
-			for(i = 0;i<temp;i++)
-			{			
-				if ((temp - i) >= 10)
-				{
-					if (aRxBuffer2[i] == 0x53)
-					{
-						temp = i;
-						for(i = 0;i<11;i++)
-							USART2_RX_BUF[i] = aRxBuffer2[i+temp-1];
-						for (i = 0; i < 10; i++)
-							sum += USART2_RX_BUF[i];
-						if (sum == USART2_RX_BUF[10])
-						{
-							sum = 0;
-							USART2_RX_STA |= 0x8000;
-						}
-						else
-						{
-							sum = 0;
-							USART2_RX_STA = 0;	
-							HAL_UART_Receive_DMA(&huart2,(u8*)aRxBuffer2,USART2_REC_LEN);
-						}
-						break;
-					}
-				}
-				else
-				{
-					HAL_UART_Receive_DMA(&huart2,(u8*)aRxBuffer2,USART2_REC_LEN);
-					break;
-				}
-			}
-			
-			
+//	tmp_flag =  __HAL_UART_GET_FLAG(&huart2,UART_FLAG_IDLE);
+//	 if((tmp_flag != RESET)){
+//            
+//        __HAL_UART_CLEAR_IDLEFLAG(&huart2);
+//        
+//        /* 读取串口状态寄存器（芯片型号不同，寄存器名称可能需要修改） */
+//        temp = huart2.Instance->SR;
+//        /* 读取串口数据寄存器（芯片型号不同，寄存器名称可能需要修改） */
+//        temp = huart2.Instance->DR;
+//        HAL_UART_DMAStop(&huart2);
+//        /* 读取DMA剩余传输数量（芯片型号不同，寄存器名称可能需要修改） */
+//		temp  = USART2_REC_LEN-hdma_usart2_rx.Instance->NDTR;
+//		if(temp >= 11)
+//		{
+//			i = 0;
+//			for(i = 0;i<temp;i++)
+//			{			
+//				if ((temp - i) >= 10)
+//				{
+//					if (aRxBuffer2[i] == 0x53)
+//					{
+//						temp = i;
+//						for(i = 0;i<11;i++)
+//							USART2_RX_BUF[i] = aRxBuffer2[i+temp-1];
+//						for (i = 0; i < 10; i++)
+//							sum += USART2_RX_BUF[i];
+//						if (sum == USART2_RX_BUF[10])
+//						{
+//							sum = 0;
+//							USART2_RX_STA |= 0x8000;
+//						}
+//						else
+//						{
+//							sum = 0;
+//							USART2_RX_STA = 0;	
+//							HAL_UART_Receive_DMA(&huart2,(u8*)aRxBuffer2,USART2_REC_LEN);
+//						}
+//						break;
+//					}
+//				}
+//				else
+//				{
+//					HAL_UART_Receive_DMA(&huart2,(u8*)aRxBuffer2,USART2_REC_LEN);
+//					break;
+//				}
+//			}
+//			
+//			
 
-							
-		}
-		else	 
-		  HAL_UART_Receive_DMA(&huart2,(u8*)aRxBuffer2,USART2_REC_LEN);
+//							
+//		}
+//		else	 
+//		  HAL_UART_Receive_DMA(&huart2,(u8*)aRxBuffer2,USART2_REC_LEN);
         //temp  = hdma_usart2_rx.Instance->NDTR;
 //        rx_len =  USART2_REC_LEN - temp;
 //        recv_end_flag = 1;
-    }
+//    }
 //	timeout=0;
 //    while (HAL_UART_GetState(&huart2) != HAL_UART_STATE_READY)//等待就绪
 //	{

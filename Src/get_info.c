@@ -60,7 +60,17 @@ u8 GetYaw(void)
 	if (USART2_RX_STA & 0x8000)
 	{
 		//(Re_buf [7]<<8| Re_buf [6]))/32768.0*180;
-		BasketballRobot.ThetaD = ((float)((USART2_RX_BUF[7] << 8) | USART2_RX_BUF[6])) / 32768 * 180;
+		BasketballRobot.theta_offset[0] =  BasketballRobot.theta_offset[1];
+		BasketballRobot.theta_offset[1] = ((float)((USART2_RX_BUF[7] << 8) | USART2_RX_BUF[6])) / 32768 * 180;
+		
+		BasketballRobot.theta_offset[2] = BasketballRobot.theta_offset[1]- BasketballRobot.theta_offset[0];
+		
+		if(BasketballRobot.theta_offset[2] > 300)
+			BasketballRobot.theta_offset[2] -= 360;
+		if(BasketballRobot.theta_offset[2] < -300)
+			BasketballRobot.theta_offset[2] += 360;
+		
+		BasketballRobot.ThetaD += BasketballRobot.theta_offset[2]/103.0f*90; //90/103.0f*360/(360+8/3) = 0.86736
 
 		BasketballRobot.ThetaR = BasketballRobot.ThetaD * PI / 180;
 
@@ -100,33 +110,43 @@ void GetPosition(void)
 
 	float theta_inv[2][2]; //角度矩阵
 
-	if(GetYaw())
-	{
+//	if(GetYaw())
+//	{
 	
 	ReadEncoder();
 
-	BasketballRobot.LastTheta = BasketballRobot.ThetaR;
+	//BasketballRobot.LastTheta = BasketballRobot.ThetaR;
 
 	//theta_inv
 	theta_inv[0][0] = cos(BasketballRobot.ThetaR);
-	theta_inv[0][1] = -theta_inv[1][0];
 	theta_inv[1][0] = sin(BasketballRobot.ThetaR);
+	theta_inv[0][1] = -theta_inv[1][0];	
 	theta_inv[1][1] = theta_inv[0][0];
+	
+	//BasketballRobot.LastTheta = BasketballRobot.ThetaR;
 
 	nW = (BasketballRobot.w[0] + BasketballRobot.w[1] + BasketballRobot.w[2]) / 3.0f;
+	
+	
 	//除去自传偏差
 	l1 = BasketballRobot.w[0] - nW;
 	l2 = BasketballRobot.w[1] - nW;
 	l3 = BasketballRobot.w[2] - nW;
 
-	nX = -l1 / 20000;
+	nX = -l1 / 22400;
 	nY = -(-l2 + l3) / 1.7320508f / 22400;
 
 	//nX =
 
 	BasketballRobot.X += nX * theta_inv[0][0] + nY * theta_inv[0][1];
 	BasketballRobot.Y += nX * theta_inv[1][0] + nY * theta_inv[1][1];
-}
+	
+	BasketballRobot.encoderCount[0] += BasketballRobot.w[0];
+	BasketballRobot.encoderCount[1] += BasketballRobot.w[1];
+	BasketballRobot.encoderCount[2] += BasketballRobot.w[2];
+	
+	
+//}
 }
 
 void receiveVisionData(void)

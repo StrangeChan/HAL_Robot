@@ -1120,9 +1120,9 @@ void LCD_Show_Title(void)						//显示内容框架
 {
 	POINT_COLOR=BLUE;//设置字体为蓝色 
  	LCD_ShowString(30,170,200,16,16,"UPLOAD ON ");	 
- 	LCD_ShowString(30,200,200,16,16,"V1:               m/s");	
- 	LCD_ShowString(30,220,200,16,16,"V2:               m/s");	
- 	LCD_ShowString(30,240,200,16,16,"V3:               m/s");	
+ 	LCD_ShowString(30,200,200,16,16,"V1:               ");	
+ 	LCD_ShowString(30,220,200,16,16,"V2:               ");	
+ 	LCD_ShowString(30,240,200,16,16,"V3:               ");	
  	LCD_ShowString(30+200,200,200,16,16,"LCJ1:                 ");	
  	LCD_ShowString(30+200,220,200,16,16,"LCJ2:                 ");	
  	LCD_ShowString(30+200,240,200,16,16,"LCJ3:                 ");	 
@@ -1138,13 +1138,13 @@ void LCD_Show_Title(void)						//显示内容框架
 	LCD_ShowString(30,360,200,16,16," Y ");	
 	LCD_ShowString(30,380,200,16,16," Theta ");	
 	
-	LCD_ShowString(30,50+400,200,16,16,"Explorer STM32F4");	
-	LCD_ShowString(30,70+400,200,16,16,"REMOTE TEST");	
-	LCD_ShowString(30,90+400,200,16,16,"ATOM@ALIENTEK");
-	LCD_ShowString(30,110+400,200,16,16,"2014/5/7");
-   	LCD_ShowString(30,130+400,200,16,16,"KEYVAL:");	
-   	LCD_ShowString(30,150+400,200,16,16,"KEYCNT:");	
-   	LCD_ShowString(30,170+400,200,16,16,"SYMBOL:");	    
+//	LCD_ShowString(30,50+400,200,16,16,"Explorer STM32F4");	
+//	LCD_ShowString(30,70+400,200,16,16,"REMOTE TEST");	
+//	LCD_ShowString(30,90+400,200,16,16,"ATOM@ALIENTEK");
+//	LCD_ShowString(30,110+400,200,16,16,"2014/5/7");
+//   	LCD_ShowString(30,130+400,200,16,16,"KEYVAL:");	
+//   	LCD_ShowString(30,150+400,200,16,16,"KEYCNT:");	
+//   	LCD_ShowString(30,170+400,200,16,16,"SYMBOL:");	    
  				
 	LCD_ShowString(30+200,320,200,16,16,"chengxu");
 	LCD_ShowString(30+200,340,200,16,16,"qiu");
@@ -1212,13 +1212,13 @@ void LCD_Show_lcj(void)
 //显示轮子速度
 void LCD_Show_v(void)
 {
-	u16 integer=0,decimal=0;
-	float tem;
+	int64_t integer=0;
+	int64_t tem;
 	u8 i;
 
 	for(i = 0; i <= 3; i++)
 	{
-		tem = BasketballRobot.v[i];
+		tem = BasketballRobot.encoderCount[i];
 		if(tem < 0){
 			tem = -tem;
 			switch(i)
@@ -1250,23 +1250,23 @@ void LCD_Show_v(void)
 			}
 		}
 		integer = (u32)tem;
-		decimal = (u32)((tem-integer)*1000);
+		//decimal = (u32)((tem-integer)*1000);
 		
 		switch (i){
 			case 0:
-				LCD_ShowxNum(90,200,integer,3,16,0);
-				LCD_ShowChar(90+25,200,'.',16,0);
-				LCD_ShowxNum(90+36,200,decimal,3,16,0);
+				LCD_ShowxNum(90,200,integer,7,16,0);
+//				LCD_ShowChar(90+25,200,'.',16,0);
+//				LCD_ShowxNum(90+36,200,decimal,3,16,0);
 				break;
 			case 1:
-				LCD_ShowxNum(90,220,integer,3,16,0);
-				LCD_ShowChar(90+25,220,'.',16,0);
-				LCD_ShowxNum(90+36,220,decimal,3,16,0);
+				LCD_ShowxNum(90,220,integer,7,16,0);
+//				LCD_ShowChar(90+25,220,'.',16,0);
+//				LCD_ShowxNum(90+36,220,decimal,3,16,0);
 				break;
 			case 2:
-				LCD_ShowxNum(90,240,integer,3,16,0);
-				LCD_ShowChar(90+25,240,'.',16,0);
-				LCD_ShowxNum(90+36,240,decimal,3,16,0);
+				LCD_ShowxNum(90,240,integer,7,16,0);
+//				LCD_ShowChar(90+25,240,'.',16,0);
+//				LCD_ShowxNum(90+36,240,decimal,3,16,0);
 				break;
 		}
 	}

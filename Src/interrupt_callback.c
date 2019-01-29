@@ -23,15 +23,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		//printf("  %f    %f \r\n",BasketballRobot.X,BasketballRobot.Y);
 //		
 		GetYaw();
-		ReadEncoder();
+		GetPosition();
 		if(count++==1)
 			LCD_Show_position();
 		
 		if(count %50== 2)
 			LCD_Show_lcj();
 		
-		if(count == 2)
-			printf("tim\r\n");
+//		if(count == 2)
+//			printf("tim\r\n");
+		if(count == 10)
+			LCD_Show_v();
 		
 //		printf("1£º %d\r\n",htim5.Instance->CNT);
 //		MPU9250_Read();

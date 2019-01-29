@@ -39,7 +39,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
-#include "dma.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -106,7 +105,6 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   MX_TIM9_Init();
@@ -265,49 +263,57 @@ int main(void)
 			case 0:	    	//测试程序
 				switch(qiu)
 				{
-					case 0:
-						RobotRotate(180);
-						//printf("err\r\n");
-						//顺时针180°
-						break;
+//					case 0:
+//						RobotRotate(180);
+//						//printf("err\r\n");
+//						//顺时针180°
+//						break;
+//					case 1:
+//						//机械臂下降
+//						Robot_armDown();
+////						2高电平往下，接红线，正转
+////						__HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_1,300);
+////						__HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_2,4000);
+//						LED0 = !LED0;
+//						break;
+//					case 2:
+//						//机械臂上升
+//						Robot_armUp();
+//						LED0 = !LED0;
+//						break;
+//					case 3:
+//						//红外测试
+//						GetInfraredState();
+//						LED0 = !LED0;
+//						break;
+//					case 4:
+//						//限位开关测试6
+//						if(LimitSwitchDowm == 1)
+//							LED1 = 0;
+//						else
+//							LED1 = 1;
+//						if(LimitSwitchUp == 1)
+//							LED0 = 0;
+//						else
+//							LED0 = 1;
+//						break;
+//					case 5:
+//						//避障测试
+//						RobotGoAvoidance();
+//						LED0 = !LED0;
+//						break;
+//					case 6:
+//						//视觉测试
+//						FindBall_vision(qiu);
+//						LED0 = !LED0;
+//						break;
 					case 1:
-						//机械臂下降
-						//Robot_armDown();
-						//2高电平往下，接红线，正转
-						__HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_1,300);
-						__HAL_TIM_SET_COMPARE(&htim9,TIM_CHANNEL_2,4000);
-						LED0 = !LED0;
-						break;
-					case 2:
-						//机械臂上升
-						Robot_armUp();
-						LED0 = !LED0;
-						break;
-					case 3:
-						//红外测试
-						GetInfraredState();
-						LED0 = !LED0;
-						break;
-					case 4:
-						//限位开关测试6
-						if(LimitSwitchDowm == 1)
-							LED1 = 0;
-						else
-							LED1 = 1;
-						if(LimitSwitchUp == 1)
-							LED0 = 0;
-						else
-							LED0 = 1;
-						break;
-					case 5:
-						//避障测试
-						RobotGoAvoidance();
-						LED0 = !LED0;
-						break;
-					case 6:
-						//视觉测试
-						FindBall_vision(qiu);
-						LED0 = !LED0;
+						RobotGoTo(0,2,0);
+//						RobotRotate(0);
+//					  RobotGoTo(3,2,0);
+//						RobotGoTo(3,3.5,0);
+//						RobotGoTo(0,2,-110);
+//						RobotGoTo(0,0,0);
 						break;
 				}
 				break;
@@ -321,15 +327,15 @@ int main(void)
 							delay_ms(1000);
 						}
 			
-						RobotGoTo(0-Correction_X,2+Correction_Y,-110);
+						RobotGoTo(0.0-Correction_X,2.0+Correction_Y,-110);
 						if(!DownShotUp())
 							break;
-						RobotRotate(0);
+						RobotRotate(0.0);
 						FindBall_VandR(qiu);
 			
 						//判断是否找到球，如果没有
 						if(findballtime==0){			//没找到球
-							RobotGoTo(-3-Correction_X,2+Correction_Y,0);
+							RobotGoTo(-3.0-Correction_X,2.0+Correction_Y,0);
 							FindBall_VandR(qiu);
 						}				
 				
@@ -670,7 +676,7 @@ int main(void)
 						FindBall_VandR(qiu);
 			
 						RobotRotate(90);
-						RobotGoTo(9+Correction_X,3.7+Correction_Y,90);
+						RobotGoTo(9.0f+Correction_X,3.7+Correction_Y,90);
 			
 						//雷达找框
 						FindBasketry();

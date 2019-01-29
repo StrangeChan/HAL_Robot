@@ -35,16 +35,16 @@
 #define MOTOR_STATIC_1 4000		//TIM9 CH1 PE5
 #define MOTOR_STATIC_2 4000  	//TIM9 CH2 PE6
 
-#define RADAR_MID 268	//雷达定位中心
-#define VISION_MID 320	//视觉定位中心
-#define DIS_RADAR 2500	//篮筐雷达定位距离
-#define DIS_VISION 280	//篮筐视觉定位距离
+#define RADAR_MID 	268	//雷达定位中心
+#define VISION_MID 	320	//视觉定位中心
+#define DIS_RADAR 	2500	//篮筐雷达定位距离
+#define DIS_VISION 	280	//篮筐视觉定位距离
 
 #define Origin_X 0		//视觉屏幕原点x坐标，现假设
 #define Origin_Y 0		//视觉屏幕原点y坐标，待修改
 
-#define Correction_X -0.3	//球场坐标修正值x
-#define Correction_Y 0.3	//球场坐标修正值y
+#define Correction_X -0.3f	//球场坐标修正值x
+#define Correction_Y 0.3f	//球场坐标修正值y
 
 //PD参数
 typedef struct
@@ -73,12 +73,13 @@ struct ROBOT
 	PD yPD;
 	PD wPD;
 	
-	float w[3];		//编码器的实际计数
-	float v[3];		//编码器所得速度
+	float w[3];				//编码器速度
+	int64_t encoderCount[3];	//编码器总计数
 	
 	float Velocity[3];	//轮子的速度
+	
 	float LastTheta;	//上一时刻，机器人theta角
-	float theta_offset;	//角度偏差矫正
+	float theta_offset[3];	//角度偏差矫正
 };
 
 //接收雷达数据，极坐标
@@ -151,8 +152,8 @@ static float adjustVy(float D_Y);			//根据偏差大小调整Y轴速度
 static float adjustVx(float D_X);			//根据偏差大小调整X轴速度
 
 static float adjustAngleV_PD(float D_Theta);	//根据偏差大小调整角速度
-static float adjustVy_PD(float D_Y);			//根据偏差大小调整Y轴速度
-static float adjustVx_PD(float D_X);			//根据偏差大小调整X轴速度
+static float adjustVy_PD(float D_Y);			//根据偏差大小调整Y轴速度P调节
+static float adjustVx_PD(float D_X);			//根据偏差大小调整X轴速度P调节
 
 
 void RobotRotate(float theta);	//自旋运动，根据误差角度，自动调节
